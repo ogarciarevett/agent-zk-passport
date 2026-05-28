@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "types": ["bun"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@azkp/credential": ["packages/credential/src/index.ts"],
+      "@azkp/proof": ["packages/proof/src/index.ts"],
+      "@azkp/vault": ["packages/vault/src/index.ts"],
+      "@azkp/transparency-log": ["packages/transparency-log/src/index.ts"],
+      "@azkp/verifier": ["packages/verifier/src/index.ts"],
+      "@azkp/broker": ["packages/broker/src/index.ts"],
+      "@azkp/agent-sdk": ["packages/agent-sdk/src/index.ts"],
+      "@azkp/issuer": ["packages/issuer/src/index.ts"],
+      "@azkp/demo-merchant": ["packages/demo-merchant/src/index.ts"]
+    }
+  },
+  "include": ["packages/*/src/**/*.ts", "packages/*/test/**/*.ts", "apps/*/src/**/*.ts"],
+  "exclude": ["node_modules", "**/dist"]
+}

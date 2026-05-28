@@ -20,3 +20,13 @@ node_modules/
 # README embeds IS committed; the script and the intermediate asciinema cast are not.
 scripts/record-demo.sh
 docs/imgs/demo.cast
+
+# Build outputs
+dist/
+*.tsbuildinfo
+target/
+Cargo.lock
+
+# Bun lockfile is committed (deterministic installs); local demo state is not.
+.azkp/
+demo-state/

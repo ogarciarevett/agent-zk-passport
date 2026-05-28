@@ -1,0 +1,17 @@
+{
+  "name": "@azkp/demo",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@azkp/credential": "workspace:*",
+    "@azkp/proof": "workspace:*",
+    "@azkp/vault": "workspace:*",
+    "@azkp/transparency-log": "workspace:*",
+    "@azkp/verifier": "workspace:*",
+    "@azkp/broker": "workspace:*",
+    "@azkp/agent-sdk": "workspace:*",
+    "@azkp/issuer": "workspace:*",
+    "@azkp/demo-merchant": "workspace:*"
+  }
+}
