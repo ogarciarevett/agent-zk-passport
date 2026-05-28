@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+# Regenerate the per-tool agent docs from .ai/ and block the commit if the committed mirrors
+# are stale. The generator is deterministic (no timestamps), so this only fires on real drift.
+# Enabled per clone by `bun install` (the `prepare` script), or manually:
+#   git config core.hooksPath .githooks
+set -e
+
+if ! command -v bun >/dev/null 2>&1; then
+  echo "pre-commit: bun not found — skipping agent-doc sync check." >&2
+  exit 0
+fi
+
+bun scripts/sync-ai-docs.ts >/dev/null
+
+PATHS="AGENTS.md CLAUDE.md GEMINI.md .ai/generated .cursor .claude .gemini .opencode"
+if ! git diff --quiet -- $PATHS; then
+  echo "✗ Generated agent docs are out of sync with .ai/." >&2
+  echo "  Run 'bun run sync:ai', then stage the regenerated files:" >&2
+  git --no-pager diff --name-only -- $PATHS >&2
+  exit 1
+fi

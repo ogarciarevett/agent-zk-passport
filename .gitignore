@@ -1,0 +1,22 @@
+# Local, per-developer agent working log — seeded from .ai/memory.example.md by `bun run sync:ai`.
+# Durable decisions go in commits / docs/adr, never here. See .ai/context.md "Memory protocol".
+.ai/memory.md
+
+# Secrets — never commit these.
+.env
+.env.*
+!.env.example
+
+# Dependencies / tooling (the sync script runs on Bun).
+node_modules/
+
+# Claude Code per-developer local settings (not shared).
+.claude/settings.local.json
+
+# OS / editor cruft
+.DS_Store
+
+# Demo recording tooling — kept local, not shipped. The rendered docs/imgs/demo.gif that the
+# README embeds IS committed; the script and the intermediate asciinema cast are not.
+scripts/record-demo.sh
+docs/imgs/demo.cast

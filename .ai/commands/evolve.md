@@ -1,0 +1,24 @@
+---
+description: "Scan the repo, diff code-reality vs the .ai/ contract+specs, and write proposed evolution patches to .ai/specs/97-evolution.md (proposes, never applies)"
+---
+
+Invoke the `evolve` skill.
+
+`/evolve` keeps the `.ai/` source-of-truth in sync with the code. It works in **every CLI**
+and it **proposes, never applies** — a human reviews the output and applies what's right.
+
+1. **Map reality.**
+   - *Claude Code (accelerated):* build/reuse a `/graphify` knowledge graph (`graphify-out/`).
+   - *Any CLI (fallback):* read the repo directly with grep/glob — and if graphify isn't
+     installed, this is the path on Claude Code too.
+2. **Scan for drift** across five dimensions — contract, stack, specs, pipeline, surface —
+   comparing ground truth to the matching `.ai/` source.
+   - *Claude Code:* fan out with the dynamic Workflow
+     `Workflow({ scriptPath: ".ai/workflows/evolve-scan.workflow.js", args: { hasGraph: <bool> } })`.
+   - *Codex / Gemini / opencode:* run the same five checks with the tool's native sub-agents
+     (or sequentially), per the "Parallel work" section of `.ai/pipeline.md`.
+3. **Report:** write `.ai/specs/97-evolution.md` (drift table + concrete proposed patches to
+   `.ai/` sources only, never generated files) with a one-line verdict.
+4. **Hand off:** stop there. Applying a patch = edit the `.ai/` source, then `bun run sync:ai`.
+
+See the `evolve` skill for full detail and the report template.

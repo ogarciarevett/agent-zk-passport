@@ -1,0 +1,13 @@
+{
+  "name": "cross-ai-template",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "One source of truth (.ai/) generated into per-tool agent configs for Claude Code, Cursor, Codex, Gemini CLI, and opencode.",
+  "scripts": {
+    "sync:ai": "bun scripts/sync-ai-docs.ts",
+    "sync:ai:all-inline": "bun scripts/sync-ai-docs.ts --all-inline",
+    "check:sync": "bun scripts/sync-ai-docs.ts && git diff --exit-code",
+    "prepare": "git config core.hooksPath .githooks || true"
+  }
+}
