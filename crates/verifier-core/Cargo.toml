@@ -1,0 +1,10 @@
+[package]
+name = "verifier-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+# std-only scaffold for the RISC Zero receipt verifier (exposed to TS via napi). Verifying a
+# real receipt requires `risc0-zkvm` + the toolchain; until then this fixes the public-input
+# (journal) shape and returns NotImplemented. See .ai/specs/02-plan.md S3.1.
+[dependencies]

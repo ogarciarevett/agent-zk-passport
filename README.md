@@ -1,159 +1,93 @@
-<!-- logo: figlet "ANSI Shadow" — regenerate with:  bunx figlet -f "ANSI Shadow" "cross-ai" -->
-```
- ██████╗██████╗  ██████╗ ███████╗███████╗       █████╗ ██╗
-██╔════╝██╔══██╗██╔═══██╗██╔════╝██╔════╝      ██╔══██╗██║
-██║     ██████╔╝██║   ██║███████╗███████╗█████╗███████║██║
-██║     ██╔══██╗██║   ██║╚════██║╚════██║╚════╝██╔══██║██║
-╚██████╗██║  ██║╚██████╔╝███████║███████║      ██║  ██║██║
- ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝      ╚═╝  ╚═╝╚═╝
-```
+# agent-zk-passport
 
-<div align="center">
+> Verifiable identity passport **+** hardware-backed secret vault for personal AI agents.
+> The passport (a zero-knowledge proof) gates capability issuance; capabilities gate every
+> secret use; **secrets never leave the broker.**
 
-# cross-ai-template
-
-**One operating contract for every AI coding tool — from a single source of truth.**
-
-![Claude Code](https://img.shields.io/badge/Claude_Code-D97757?style=for-the-badge)
-![Cursor](https://img.shields.io/badge/Cursor-000000?style=for-the-badge)
-![Codex](https://img.shields.io/badge/Codex-412991?style=for-the-badge)
-![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-4285F4?style=for-the-badge)
-![opencode](https://img.shields.io/badge/opencode-FF6B00?style=for-the-badge)
-
-![skills](https://img.shields.io/badge/skills-25-8b5cf6?style=flat-square)
-![commands](https://img.shields.io/badge/commands-12-06b6d4?style=flat-square)
-![personas](https://img.shields.io/badge/personas-4-ec4899?style=flat-square)
-![config drift](https://img.shields.io/badge/config_drift-zero-22c55e?style=flat-square)
-![sync](https://img.shields.io/badge/sync-Bun-000000?style=flat-square&logo=bun&logoColor=white)
-
-</div>
-
-A drop-in scaffold that gives **every** AI coding tool in your repo the same operating
-contract, lifecycle, skills, personas, and commands — from **one source of truth**.
-
-You edit `.ai/`. A single generator (`scripts/sync-ai-docs.ts`) materializes the tool-specific
-configs for **Claude Code, Cursor, Codex, Gemini CLI, and opencode**. No more hand-maintaining
-`CLAUDE.md`, `.cursor/rules`, and a Gemini config separately and watching them drift.
-
-## 🎬 See it in action
-
-![cross-ai-template — one .ai/ edit fans out to every tool, with a drift gate](docs/imgs/demo.gif)
-
-One edit to `.ai/context.md` → `bun run sync:ai` → the same rule lands in every tool's config:
-inlined into `AGENTS.md`/`.cursor` (Codex, Cursor, GitHub web) and `@`-imported by the
-`CLAUDE.md`/`GEMINI.md` stubs. Then `bun run check:sync` (the pre-commit gate) **blocks** a
-contract edit that wasn't re-synced.
-
-## 🧩 How it works
+A personal agent needs two things to act on your behalf on the web: a way to **prove it's a
+legitimate, human-owned agent** (so sites stop treating it like a bot) and a way to **hold and
+use your secrets** — API keys, wallet keys, OAuth tokens — **without ever being able to leak
+them**, even if the agent itself is hijacked by a prompt injection. This repo is a working
+reference for both, designed as one system.
 
 ```
-.ai/                      ← the ONLY files you hand-edit (source of truth)
- ├─ context.md            project contract (stack, Definition of Done, hard rules)
- ├─ pipeline.md           the generic spec→plan→build→test→review lifecycle
- ├─ commands/*.md         slash-command definitions
- ├─ agents/*.md           reviewer personas (code / security / performance / test)
- ├─ skills/*/SKILL.md     reusable workflow skills (TDD, code review, CI/CD, …)
- ├─ workflows/*.js        Claude-Code-only dynamic Workflow scripts (fan-out panels)
- ├─ references/*.md       checklists the skills/personas cite
- ├─ specs/*.md            your project's requirements / spec / plan / review / acceptance
- └─ memory.example.md     seed for the local, gitignored working log
-
-      │   bun run sync:ai      (scripts/sync-ai-docs.ts — deterministic)
-      ▼
-AGENTS.md · CLAUDE.md · GEMINI.md · .ai/generated/rules.mdc      ← contract entry files
-.claude/ · .gemini/ (TOML) · .opencode/ · .cursor/ (symlink)     ← per-tool mirrors
+issuer (HTTP)  ──mint──▶  agent ──passport proof──▶  merchant (rejects un-passported traffic)
+                            │
+                            └──proof──▶ broker ──injects the payment key──▶ merchant
+                                          │
+                                       sealed vault (the only place plaintext secrets exist)
 ```
 
-| Tool | Reads | Produced as |
-|------|-------|-------------|
-| Claude Code | `CLAUDE.md` + `.claude/{commands,agents,skills}` | `@`-import stub + copied assets |
-| Cursor | `.cursor/rules/00-context.mdc` | symlink → `.ai/generated/rules.mdc` |
-| Codex | `AGENTS.md` + `.codex/config.toml` | inlined contract + MCP config |
-| Gemini CLI | `GEMINI.md` + `.gemini/{commands(TOML),agents,skills}` | `@`-import stub + transformed assets |
-| opencode | `.ai/*` directly + `.opencode/{commands,agents}` | reads source + copied assets |
+## Quickstart
 
-**Never edit a generated file** — your edit is overwritten on the next sync, and the
-pre-commit hook blocks committing a stale one. Change a convention in `.ai/`, run
-`bun run sync:ai`, commit.
+```bash
+bun install
+bun run demo        # end-to-end: onboard → mint → prove → capability → gated payment → revoke
+bun test            # 33 TypeScript tests (incl. the secret-exfiltration gate)
+cargo test          # Rust core (predicate logic, vault/verifier/prover scaffolds)
+```
 
-## ⚡ Quick start (adopt into your repo)
+The demo prints each step and ends with the payment completing through the broker — while a
+test (`apps/demo/test/exfiltration.test.ts`) proves the raw key is **unrecoverable** from the
+agent side (no export API, not in results, logs, proxied bodies, or proof witnesses).
 
-1. Copy `.ai/`, `scripts/`, `package.json`, `.gitignore`, `.githooks/`, and the per-tool dirs
-   (`.claude/ .gemini/ .opencode/ .cursor/ .codex/ .mcp.json`) into your repo — or start your
-   repo from this template.
-2. Install the sync tooling and wire the hook:
-   ```sh
-   bun install        # runs the `prepare` script → git config core.hooksPath .githooks
-   ```
-   (If your repo already has a `package.json`, just copy the `scripts` entries and run
-   `git config core.hooksPath .githooks` once.)
-3. **Fill the contract** — two ways:
-   - **Fastest:** open the repo in your AI tool and run **`/bootstrap`** — it interviews you,
-     fills `.ai/context.md` (and can seed the specs), and runs the sync for you.
-   - **By hand:** edit `.ai/context.md` (your Project, locked Stack, Definition of Done, hard
-     rules — look for the `<!-- FILL: … -->` markers).
-4. Regenerate (skip if you ran `/bootstrap` — it already synced):
-   ```sh
-   bun run sync:ai
-   ```
-5. Open the repo in any supported tool — it now follows the same contract everywhere.
+## How it works
 
-## 📐 Filling the specs (two ways)
+1. **Issue.** The issuer onboards a human (mock OIDC here; real OIDC/KYC/Worldcoin later) and
+   mints a credential **bound to the agent's keypair**, carrying attribute *commitments* — not
+   the raw age/jurisdiction/limits.
+2. **Prove.** The agent produces a passport proof for a predicate set (`age ≥ 18 ∧
+   not_revoked ∧ daily_spend ≤ 200`) — selective disclosure of the *result*, never the values.
+3. **Mint a capability.** The agent presents the proof to the **broker**, which verifies it
+   (+ non-revocation) and mints a short-lived, scoped capability token (TTL + max-uses). The
+   proof gates *issuance*; the capability gates *individual uses* — this absorbs zk-proving
+   latency (ADR [`0001`](docs/adr/0001-capability-protocol.md)).
+4. **Use.** The agent calls `broker.exec(capability, op)`. The broker performs the op with the
+   sealed secret (sign / inject-at-egress / OAuth refresh) and returns only the **result**.
+   There is no `getSecret` — by construction.
+5. **Verify.** A relying party challenges the agent and verifies the passport offline in
+   **< 100 ms** against the issuer key + a cached signed revocation root.
 
-`.ai/specs/` ships as **empty skeletons** — the section headings *are* the required format.
-Populate them either way:
+## Packages
 
-- **By hand** — edit `00-requirements.md` → `01-spec.md` → `02-plan.md`, following the headings
-  and replacing the `<!-- TODO -->` markers.
-- **With the agent (recommended)** — this template already includes the spec generator. Run the
-  lifecycle commands and let the agent write the files:
-  ```
-  /spec     # → fills .ai/specs/01-spec.md   (skill: spec-driven-development)
-  /plan     # → fills .ai/specs/02-plan.md   (skill: planning-and-task-breakdown)
-  ```
-  Optional: `/excalidraw-spec` renders the architecture diagram via the excalidraw MCP server.
+| Package | What it is |
+|---|---|
+| [`@azkp/credential`](packages/credential) | crypto, attribute commitments, predicate language, credential schema |
+| [`@azkp/proof`](packages/proof) | `ProofBackend` interface · **dev** Ed25519 backend (real crypto, non-ZK) · **risc0** stub |
+| [`@azkp/vault`](packages/vault) | sealed envelope encryption; `withSecret` lending — no plaintext export |
+| [`@azkp/transparency-log`](packages/transparency-log) | signed Merkle revocation log + reputation accumulator |
+| [`@azkp/verifier`](packages/verifier) | offline proof + revocation + replay verification (< 100 ms) |
+| [`@azkp/broker`](packages/broker) | **the trust core**: proof-gated capability minting + scoped exec |
+| [`@azkp/agent-sdk`](packages/agent-sdk) | agent identity, credential store, proof client (holds no secrets) |
+| [`@azkp/issuer`](packages/issuer) | Hono service: onboard + mint bound credential |
+| [`@azkp/demo-merchant`](packages/demo-merchant) | Hono service that rejects un-passported traffic |
+| [`crates/*`](crates) | Rust core: predicate logic (real) + vault/verifier/prover scaffolds for the RISC Zero + HW-seal path |
 
-You don't need an external spec tool — `/spec` + the `spec-driven-development` skill *are* the
-"open-spec" workflow, built in.
+## Scope & honesty (v1)
 
-## 🔁 The lifecycle
+This is a faithful reference that **proves the security invariant today**, with two pieces
+deliberately stubbed behind clean interfaces because their full versions are multi-week:
 
-Per vertical slice: `/spec → /plan → /build → /test → /review`.
-Once, at the end: `/consensus-review → /code-simplify → /ship → /acceptance → /goal`.
-Optional, on a cadence: `/evolve` — re-sync the `.ai/` contract to the code (all CLIs;
-graphify + dynamic Workflow accelerate it on Claude Code).
-Full definition: [`.ai/pipeline.md`](.ai/pipeline.md).
+- **Proofs are not yet zero-knowledge.** The demo uses the `dev-ed25519` backend: real crypto
+  that soundly proves issuer-binding, agent-binding, freshness, and non-revocation, but
+  *trusts the prover* on predicate truth. The sound, ZK version (proving predicates over
+  commitments in-circuit) is the RISC Zero backend — `crates/zk-predicates` holds the exact
+  predicate logic the guest will enforce; wiring it needs the RISC Zero toolchain. The swap is
+  one line (`getProofBackend('risc0')`).
+- **The vault master key is file-backed, not hardware-sealed.** The Secure Enclave / TPM /
+  passkey provider is the production target (`crates/vault` fixes the trait surface); the
+  secret-never-exported invariant holds regardless of where the master key lives.
 
-## 📦 What's included
+Both are tracked in [`.ai/specs/02-plan.md`](.ai/specs/02-plan.md) (S3.0, S2.0) and the
+[acceptance matrix](.ai/specs/99-acceptance.md).
 
-- **Commands** (`.ai/commands/`): `bootstrap` (one-time setup), `spec`, `plan`, `build`,
-  `test`, `review`, `consensus-review`, `code-simplify`, `ship`, `acceptance`, `excalidraw-spec`,
-  and `evolve` (contract drift detection).
-- **Personas** (`.ai/agents/`): `code-reviewer`, `security-auditor`, `performance-reviewer`,
-  `test-engineer`. See [`.ai/agents/README.md`](.ai/agents/README.md).
-- **Skills** (`.ai/skills/`): ~25 stack-agnostic workflows — TDD, code review, CI/CD,
-  incremental implementation, security hardening, debugging, API design, plus `evolve`
-  (graphify-backed contract-vs-code drift) and more.
-- **Workflows** (`.ai/workflows/`): **Claude-Code-only** dynamic `Workflow` scripts that fan
-  out subagents deterministically — the 2-of-3 `consensus-review` panel, `parallel-slices`,
-  and the `evolve-scan` engine. Other CLIs use their native sub-agents for the same stages.
-  See [`.ai/workflows/README.md`](.ai/workflows/README.md).
-- **References** (`.ai/references/`): checklists the personas/skills cite.
+## Specs & agent docs
 
-## 🧠 Memory
+Design lives in [`.ai/specs/`](.ai/specs) (`00-requirements`, `01-spec`, `02-plan`,
+`99-acceptance`). This repo also carries a generated multi-tool agent-doc system (Claude Code,
+Cursor, Codex, Gemini, opencode) — see [`AGENTS.md`](AGENTS.md) and run `bun run sync:ai` after
+editing `.ai/context.md` or `.ai/pipeline.md`.
 
-`.ai/memory.md` is a **local, gitignored** per-developer working log, seeded from
-`.ai/memory.example.md` on first sync. Terse `symptom → root cause → fix` entries. Durable,
-team-facing decisions go in commit messages or `docs/adr/`, not here. Never write secrets.
+## License
 
-## 🔌 MCP servers
-
-`.mcp.json` ships one server: `excalidraw` (used by `/excalidraw-spec`). Add your own
-(database, search, etc.) there; `.codex/config.toml` mirrors MCP config for Codex.
-
-## 🔄 Keeping it in sync
-
-- `bun run sync:ai` — regenerate everything from `.ai/`.
-- `bun run check:sync` — regenerate and fail if anything changed (use in CI).
-- `.githooks/pre-commit` runs the check automatically once
-  `git config core.hooksPath .githooks` is set (done by `bun install`).
+MIT.

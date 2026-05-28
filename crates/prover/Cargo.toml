@@ -1,0 +1,12 @@
+[package]
+name = "prover"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+# std-only scaffold for the RISC Zero host (runs the guest, produces receipts; local + Bonsai).
+# Wiring requires `risc0-zkvm` + the toolchain. Until then `prove` returns NotImplemented and
+# the TypeScript dev backend produces the demo's proofs. See .ai/specs/02-plan.md S3.0.
+[dependencies]
+zk-predicates = { path = "../zk-predicates" }
+verifier-core = { path = "../verifier-core" }

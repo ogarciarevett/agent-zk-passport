@@ -1,0 +1,11 @@
+[package]
+name = "vault"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+# std-only scaffold. The production-target hardware-sealed vault (Secure Enclave / TPM /
+# passkey-wrapped envelope encryption, exposed to TS via napi) lives here; for v1 the runnable
+# reference vault is the TypeScript `packages/vault`. This crate fixes the trait surface and
+# the secret-never-exported invariant in Rust. See .ai/specs/02-plan.md S2.0.
+[dependencies]
