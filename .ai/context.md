@@ -1,4 +1,4 @@
-# Agent Operating Contract — <PROJECT_NAME>
+# Agent Operating Contract — agent-zk-passport
 
 ## Source-of-truth convention (READ FIRST)
 - The ONLY hand-edited spec files are `.ai/context.md` (the project contract) and
@@ -34,31 +34,58 @@
   docs stale) is incomplete.
 
 ## Project
-<!-- FILL: 2–4 sentences. What this service/app does, who uses it, and the dominant
-correctness or quality constraint the agent must respect above all else (e.g. "per-tenant
-data isolation", "p99 < 100 ms", "exactly-once processing", "no fund/data loss on crash"). -->
+`agent-zk-passport` gives a personal AI agent two things that work as one system: a
+**portable zero-knowledge identity passport** (proves the agent is owned by an attested
+human, is not revoked, and meets per-request policy predicates — without revealing the
+human) and a **hardware-backed secret vault** whose every operation that passport
+authorizes. The agent holds the user's real secrets — third-party API keys, crypto wallet
+signing keys, OAuth tokens — and must be able to *use* them (sign, call, refresh) while a
+local broker keeps the raw secret sealed. Users are people running a personal agent;
+relying parties are merchants/sites/payment rails that want to trust agent traffic.
+**Dominant constraint, above all else: a raw secret must NEVER be exfiltrable** — not to
+the agent, a log, an error, a proof witness, or the network. Every other goal is
+subordinate to that invariant. See `.ai/specs/01-spec.md` for the architecture.
 
 ## Stack (LOCKED — do not relitigate)
-<!-- FILL: the locked tech choices, separated by ·. Name the runtime/language, web framework,
-validation lib, datastore + ORM, queue/cache, logger, test runner, and linter/formatter. End
-with explicit NOs — libraries or approaches that are out of bounds — so agents don't relitigate
-settled decisions. Example shape:
-"<runtime> · <web framework> · <validation> · <datastore + ORM> · <queue> · <logger> ·
-<test runner> · <linter/formatter>. NO <forbidden choice>." -->
+**TypeScript on Bun** (SDKs, services, broker glue, demo) · **Hono** (issuer + demo-merchant
+HTTP) · **Zod** (boundary validation, canonical schemas in `packages/credential`) ·
+**SQLite via `bun:sqlite` + Drizzle** (issuer + transparency-log storage) · **pino** (logging,
+with a hard secret-redaction layer) · **bun test** (TS tests) · **Biome** (TS lint/format).
+**Rust (Cargo workspace)** for the security/ZK core: **RISC Zero zkVM** (predicate proofs —
+guest + host, local prover with optional Bonsai remote) · **`crates/vault`** (HW-sealed
+envelope encryption via OS keystore: Secure Enclave / TPM / passkey) · **`crates/verifier-core`**
+(receipt verification, exposed to TS via napi/FFI) · **Biscuit** (attenuable capability tokens)
+· `cargo test`/`nextest` · `rustfmt` + `clippy`. **viem** for L2 anchoring.
+NO cloud/remote custody in v1 (local hardware-backed only) · NO secret ever held by the agent
+process or returned over IPC (broker performs ops, returns results) · NO Circom/Groth16 (RISC
+Zero is the locked proof system) · NO Express/Prisma · NO npm/yarn/pnpm (Bun only).
 
 ## Definition of Done (all must pass)
-Tests green + coverage ≥ <THRESHOLD> · typecheck clean (`<typecheck command>`) ·
-linter/formatter clean (`<lint command>`) · every external input validated at the boundary ·
-no secrets in logs · new errors recorded in `.ai/memory.md` · generated agent docs in sync
+Tests green + coverage ≥ 80% · typecheck clean (`bun run typecheck` / `tsc --noEmit`) ·
+Rust clean (`cargo clippy -- -D warnings && cargo fmt --check`) · linter/formatter clean
+(`bunx biome check`) · every external input validated at the boundary (Zod / typed
+deserialization) · **no raw secret in any log, error, proof witness, or IPC response — proven
+by a test** · new errors recorded in `.ai/memory.md` · generated agent docs in sync
 (`bun run sync:ai`, enforced by the pre-commit hook).
-<!-- FILL: replace <THRESHOLD> and the <…> commands, and add any project-specific gates
-(e.g. "every DB write goes through the repository layer", "all endpoints rate-limited"). -->
+**Project-specific gates:** plaintext secret material exists ONLY inside `crates/vault` +
+the broker process (no other package may import or receive it) · the broker exposes NO
+secret-export endpoint · verifier proof+revocation check stays < 100 ms · every passport
+proof feeds a capability with a bounded TTL/max-uses (no unbounded capability).
 
 ## Hard rules
 NEVER push / open PRs / create remote branches / add collaborators / deploy.
 Commit locally; the human pushes. NEVER commit `.env` or any secret.
-<!-- FILL: add project-specific hard rules (e.g. "no live external/network calls in unit
-tests", "never hand-edit generated migrations"). -->
+**Security hard rules (this project's reason for existing):**
+- A raw secret (API key, private key, OAuth token) must NEVER cross the broker boundary
+  into the agent, a log, an error message, a proof witness, or a network response. There is
+  NO `getSecret`/`exportSecret` path — by construction, not by policy.
+- Plaintext secret material lives only in `crates/vault` + the broker process. Do not add an
+  import or IPC that moves it elsewhere.
+- The master/HW key never leaves the OS hardware boundary. Per-secret data keys are wrapped
+  by it; never persist an unwrapped data key.
+- Treat the agent process as potentially prompt-injected at all times; designs must hold
+  even if the agent is fully compromised.
+- No live external/network calls in unit tests (mock IdP, chain RPC, and third-party APIs).
 
 ## Memory protocol (shared across Claude Code, Codex, Gemini, opencode)
 - `.ai/memory.md` is a LOCAL, per-developer working log — it is **gitignored**, not
