@@ -56,7 +56,9 @@ describe('predicates', () => {
 
   test('fails when one predicate is false', () => {
     const { openings } = commitAttributes({ age: 16 });
-    expect(evaluatePredicateSet([{ attribute: 'age', op: 'gte', value: 18 }], openings)).toBe(false);
+    expect(evaluatePredicateSet([{ attribute: 'age', op: 'gte', value: 18 }], openings)).toBe(
+      false,
+    );
   });
 });
 

@@ -44,6 +44,10 @@ export function commitAttributes(attributes: Record<string, AttributeValue>): {
 }
 
 /** Verify that an opening matches a committed value. */
-export function verifyOpening(name: string, commitment: string, opening: AttributeOpening): boolean {
+export function verifyOpening(
+  name: string,
+  commitment: string,
+  opening: AttributeOpening,
+): boolean {
   return computeCommitment(name, opening.value, opening.salt) === commitment;
 }

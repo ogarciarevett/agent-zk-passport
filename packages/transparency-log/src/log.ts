@@ -4,7 +4,12 @@
  * check offline. In production the root is periodically anchored to an L2 (viem) for
  * tamper-evidence; that anchoring job is a later slice (see .ai/specs/02-plan.md S3.2).
  */
-import { type Ed25519KeyPair, canonicalJson, generateEd25519KeyPair, signMessage } from '@azkp/credential';
+import {
+  type Ed25519KeyPair,
+  canonicalJson,
+  generateEd25519KeyPair,
+  signMessage,
+} from '@azkp/credential';
 import { merkleRoot } from './merkle.js';
 
 export interface SignedRoot {

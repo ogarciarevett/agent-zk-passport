@@ -23,7 +23,9 @@ export const SecretPolicySchema = z.object({
   scopes: z.array(z.string()).default([]),
   /** predicates a passport must satisfy before a capability over this secret can mint. */
   requiredPredicates: z
-    .array(z.object({ attribute: z.string(), op: z.string(), value: z.union([z.number(), z.string()]) }))
+    .array(
+      z.object({ attribute: z.string(), op: z.string(), value: z.union([z.number(), z.string()]) }),
+    )
     .default([]),
   maxUsesPerCapability: z.number().int().positive().default(1),
   capabilityTtlMs: z.number().int().positive().default(60_000),
@@ -75,7 +77,11 @@ function aeadEncrypt(key: Buffer, plaintext: Buffer): { iv: string; ct: string; 
   const iv = randomBytes(12);
   const cipher = createCipheriv('aes-256-gcm', key, iv);
   const ct = Buffer.concat([cipher.update(plaintext), cipher.final()]);
-  return { iv: iv.toString('hex'), ct: ct.toString('hex'), tag: cipher.getAuthTag().toString('hex') };
+  return {
+    iv: iv.toString('hex'),
+    ct: ct.toString('hex'),
+    tag: cipher.getAuthTag().toString('hex'),
+  };
 }
 
 function aeadDecrypt(key: Buffer, blob: { iv: string; ct: string; tag: string }): Buffer {
@@ -101,7 +107,9 @@ export class SealedVault {
   /** Seal a secret under a fresh per-secret data key wrapped by the master key. */
   putSecret(input: PutSecretInput): RecordInfo {
     const policy = SecretPolicySchema.parse(input.policy);
-    const plaintext = Buffer.isBuffer(input.secret) ? input.secret : Buffer.from(input.secret, 'utf8');
+    const plaintext = Buffer.isBuffer(input.secret)
+      ? input.secret
+      : Buffer.from(input.secret, 'utf8');
     const dataKey = randomBytes(32);
     const master = this.masterKeys.getMasterKey();
     try {

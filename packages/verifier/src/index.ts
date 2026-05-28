@@ -66,7 +66,8 @@ export class Verifier {
       this.liveChallenges.delete(challenge.nonce);
       return { ok: false, reason: 'challenge expired' };
     }
-    if (proof.claim.challenge !== challenge.nonce) return { ok: false, reason: 'challenge mismatch' };
+    if (proof.claim.challenge !== challenge.nonce)
+      return { ok: false, reason: 'challenge mismatch' };
 
     // 2. backend binds the claim.
     const backendResult = await this.backend.verify(proof);
@@ -81,7 +82,11 @@ export class Verifier {
     }
 
     // 4. non-revocation under the bound root.
-    const rev = this.config.revocation.check(proof.claim.revocationId, proof.claim.revocationRoot, now);
+    const rev = this.config.revocation.check(
+      proof.claim.revocationId,
+      proof.claim.revocationRoot,
+      now,
+    );
     if (!rev.ok) return { ok: false, reason: rev.reason ?? 'revoked' };
 
     // 5. policy: required predicates must all be present.
@@ -89,7 +94,10 @@ export class Verifier {
       const have = new Set(proof.claim.predicates.map(describePredicate));
       const missing = requiredPredicates.filter((p) => !have.has(describePredicate(p)));
       if (missing.length > 0) {
-        return { ok: false, reason: `missing predicates: ${missing.map(describePredicate).join(', ')}` };
+        return {
+          ok: false,
+          reason: `missing predicates: ${missing.map(describePredicate).join(', ')}`,
+        };
       }
     }
 

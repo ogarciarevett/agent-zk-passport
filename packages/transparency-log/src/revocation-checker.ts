@@ -12,7 +12,11 @@ export interface RevocationCheckResult {
   reason?: string;
 }
 
-export function verifySignedRoot(trustedLogPubkey: string, signed: SignedRoot, now: number): RevocationCheckResult {
+export function verifySignedRoot(
+  trustedLogPubkey: string,
+  signed: SignedRoot,
+  now: number,
+): RevocationCheckResult {
   if (signed.logPubkey !== trustedLogPubkey) return { ok: false, reason: 'untrusted log key' };
   const { signature, ...unsigned } = signed;
   if (!verifyMessage(trustedLogPubkey, canonicalJson(unsigned), signature)) {

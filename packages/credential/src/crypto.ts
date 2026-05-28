@@ -9,6 +9,7 @@ import {
   createPrivateKey,
   createPublicKey,
   generateKeyPairSync,
+  createHmac as nodeCreateHmac,
   randomBytes as nodeRandomBytes,
   sign as nodeSign,
   verify as nodeVerify,
@@ -39,7 +40,8 @@ function privateKeyFromHex(hex: string) {
 
 function publicKeyFromRawHex(hex: string) {
   const raw = Buffer.from(hex, 'hex');
-  if (raw.length !== 32) throw new Error(`expected 32-byte raw ed25519 public key, got ${raw.length}`);
+  if (raw.length !== 32)
+    throw new Error(`expected 32-byte raw ed25519 public key, got ${raw.length}`);
   const spki = Buffer.concat([RAW_ED25519_PUBLIC_PREFIX, raw]);
   return createPublicKey({ key: spki, format: 'der', type: 'spki' });
 }
@@ -51,7 +53,11 @@ export function signMessage(privateKeyHex: string, message: string): string {
 }
 
 /** Verify a hex signature over a UTF-8 message against a raw hex public key. */
-export function verifyMessage(publicKeyHex: string, message: string, signatureHex: string): boolean {
+export function verifyMessage(
+  publicKeyHex: string,
+  message: string,
+  signatureHex: string,
+): boolean {
   try {
     return nodeVerify(
       null,
@@ -67,6 +73,11 @@ export function verifyMessage(publicKeyHex: string, message: string, signatureHe
 /** SHA-256 of a UTF-8 string, hex-encoded. */
 export function sha256Hex(input: string): string {
   return createHash('sha256').update(input, 'utf8').digest('hex');
+}
+
+/** HMAC-SHA256 over a UTF-8 payload keyed by raw key material. Hex-encoded. */
+export function createHmac(_alg: 'sha256', key: Buffer | string, payload: string): string {
+  return nodeCreateHmac('sha256', key).update(payload, 'utf8').digest('hex');
 }
 
 /** Cryptographically random bytes, hex-encoded. */

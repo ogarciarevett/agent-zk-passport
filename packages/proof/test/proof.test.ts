@@ -87,7 +87,13 @@ describe('risc0 backend (stub)', () => {
 });
 
 // helper that signs the same binding bytes with a different key (forgery attempt)
-async function signWith(privateKeyHex: string, proof: Awaited<ReturnType<typeof devProofBackend.prove>>) {
+async function signWith(
+  privateKeyHex: string,
+  proof: Awaited<ReturnType<typeof devProofBackend.prove>>,
+) {
   const { canonicalJson, signMessage } = await import('@azkp/credential');
-  return signMessage(privateKeyHex, canonicalJson({ claim: proof.claim, credential: proof.credential }));
+  return signMessage(
+    privateKeyHex,
+    canonicalJson({ claim: proof.claim, credential: proof.credential }),
+  );
 }

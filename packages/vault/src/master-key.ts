@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 /**
  * Master-key providers. The master key wraps each per-secret data key; it is the root of
  * the custody tree and must be the hardest thing to extract.
@@ -8,7 +9,6 @@
  * file-backed provider, clearly NOT hardware-sealed.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { randomBytes } from 'node:crypto';
 import { dirname } from 'node:path';
 
 export interface MasterKeyProvider {

@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { EphemeralMasterKeyProvider, type SecretPolicy, MemoryVaultStore, SealedVault } from '../src/index.js';
+import {
+  EphemeralMasterKeyProvider,
+  MemoryVaultStore,
+  SealedVault,
+  type SecretPolicy,
+} from '../src/index.js';
 
 const policy: SecretPolicy = {
   operations: ['http_proxy'],
@@ -56,6 +61,8 @@ describe('sealed vault', () => {
     const v = new SealedVault(new EphemeralMasterKeyProvider(), store);
     v.putSecret({ id: 'a', type: 'generic', secret: 'same', policy });
     v.putSecret({ id: 'b', type: 'generic', secret: 'same', policy });
-    expect(store.get('a')!.envelope.wrappedDataKey.ct).not.toBe(store.get('b')!.envelope.wrappedDataKey.ct);
+    expect(store.get('a')!.envelope.wrappedDataKey.ct).not.toBe(
+      store.get('b')!.envelope.wrappedDataKey.ct,
+    );
   });
 });
