@@ -1,0 +1,13 @@
+# RISC Zero proving workspace — kept SEPARATE from the root Cargo workspace so the fast,
+# std-only `cargo test --workspace` gate doesn't pull in the heavy risc0 build. Built on
+# demand here. Toolchain: cargo-risczero / r0vm 3.0.5 (installed via rzup; see README).
+[workspace]
+resolver = "2"
+members = ["host", "methods"]
+
+[profile.dev]
+opt-level = 3
+
+[profile.release]
+debug = 1
+lto = true

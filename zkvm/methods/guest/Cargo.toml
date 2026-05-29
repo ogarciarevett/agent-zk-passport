@@ -1,0 +1,11 @@
+[package]
+name = "guest"
+version = "0.1.0"
+edition = "2021"
+
+# Detached from the parent workspace — built for the RISC-V zkVM target by risc0-build.
+[workspace]
+
+[dependencies]
+risc0-zkvm = { version = "^3.0.5", default-features = false, features = ['std'] }
+zk-predicates = { path = "../../../crates/zk-predicates" }

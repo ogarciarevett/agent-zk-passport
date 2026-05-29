@@ -5,9 +5,11 @@
 > Status legend: ✅ done & tested · ⚠️ done with a documented limitation · ❌ not done.
 
 **Gate evidence (2026-05-29):**
-- `bun test` → **42 passed**, 0 fail (incl. broker-over-UDS boundary + reputation + Merkle).
-- `bun test --coverage` → **89% funcs / 95.8% lines** (≥ 80% threshold met).
+- `bun test` → **44 passed**, 0 fail (incl. broker-over-UDS, reputation, Merkle, and a REAL
+  RISC Zero receipt round-trip when the prover is built; auto-skips otherwise).
+- `bun test --coverage` → **≥ 89% funcs / 95.8% lines** (≥ 80% threshold met).
 - `cargo test --workspace` → **9 passed** (zk-predicates 4, vault 2, verifier-core 2, prover 2), 0 fail.
+- `cd zkvm && cargo test` → **2 real zkVM proofs pass**; `cargo audit` clean (5 transitive advisories triaged).
 - `bun run typecheck` (`tsc --noEmit`) → **clean**.
 - `bunx biome check .` → **clean** (34 files).
 - `cargo clippy --workspace --all-targets` → **clean**; `cargo fmt --check` → **clean**.
@@ -31,8 +33,12 @@
 
 ## Gaps & limitations (honest)
 
-- **Zero-knowledge proving not yet wired.** `dev-ed25519` backend trusts the prover on predicate
-  truth; sound ZK = RISC Zero backend (toolchain + `crates/zk-predicates` guest). Tracked S3.0.
+- **Zero-knowledge proving — predicate soundness DONE (S3.0 partial).** Real RISC Zero zkVM
+  backend implemented (`zkvm/` guest+host+CLI, `packages/proof/src/risc0-backend.ts`): proves
+  the predicate set over private attributes in-circuit, commits only claim+result; verified by
+  `packages/proof/test/risc0.test.ts` (real receipt). Remaining for full soundness (next layer):
+  move commitment-opening + issuer-sig + agent-key + non-revocation checks in-circuit. Toolchain
+  pinned to risc0 3.0.5; transitive-advisory triage in `docs/security/dependency-audit.md`.
 - **Hardware sealing not yet wired.** Master key is a 0600 file; Secure Enclave/TPM/passkey is the
   target. The no-export invariant is independent of this and is tested. Tracked S2.0.
 - ~~**Single-process demo.**~~ ✅ Resolved (S4.0): broker runs as a separate process over a

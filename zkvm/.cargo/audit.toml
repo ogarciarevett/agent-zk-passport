@@ -1,0 +1,14 @@
+# cargo-audit triage for the RISC Zero proving workspace. Every entry below is a TRANSITIVE
+# advisory inside the risc0 / arkworks dependency tree with no available fix in the versions
+# risc0 3.0.5 pins. None indicate a compromise; all are scoped to the build-time / proving
+# toolchain, which is NOT shipped to the agent or to end users and is never on a network-
+# facing timing-oracle or untrusted-log-input path. Re-review on each risc0 upgrade.
+# Full justification: docs/security/dependency-audit.md.
+[advisories]
+ignore = [
+  "RUSTSEC-2023-0071", # rsa Marvin timing side-channel (no fix). Transitive; we perform no RSA ops.
+  "RUSTSEC-2025-0055", # tracing-subscriber ANSI log poisoning. Pinned to 0.2.25 by arkworks 0.5; proving-time diagnostics only.
+  "RUSTSEC-2025-0141", # bincode unmaintained (warning). Transitive via risc0/ark; our host uses serde_json.
+  "RUSTSEC-2024-0388", # derivative unmaintained (warning). Transitive via arkworks.
+  "RUSTSEC-2024-0436", # paste unmaintained (warning). Transitive via risc0/ark.
+]

@@ -77,12 +77,12 @@ describe('dev proof backend', () => {
   });
 });
 
-describe('risc0 backend (stub)', () => {
-  test('prove throws not-wired, verify returns not-ok', async () => {
+describe('risc0 backend routing', () => {
+  // The real zkVM prove/verify round-trip lives in risc0.test.ts (skipped without the
+  // prover binary). Here we only assert backend selection.
+  test('getProofBackend("risc0") resolves to the risc0 backend', () => {
     expect(getProofBackend('risc0')).toBe(risc0ProofBackend);
-    await expect(
-      risc0ProofBackend.prove({} as Parameters<typeof risc0ProofBackend.prove>[0]),
-    ).rejects.toThrow(/not wired/);
+    expect(risc0ProofBackend.id).toBe('risc0');
   });
 });
 

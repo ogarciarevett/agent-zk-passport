@@ -76,12 +76,14 @@ agent side (no export API, not in results, logs, proxied bodies, or proof witnes
 This is a faithful reference that **proves the security invariant today**, with two pieces
 deliberately stubbed behind clean interfaces because their full versions are multi-week:
 
-- **Proofs are not yet zero-knowledge.** The demo uses the `dev-ed25519` backend: real crypto
-  that soundly proves issuer-binding, agent-binding, freshness, and non-revocation, but
-  *trusts the prover* on predicate truth. The sound, ZK version (proving predicates over
-  commitments in-circuit) is the RISC Zero backend — `crates/zk-predicates` holds the exact
-  predicate logic the guest will enforce; wiring it needs the RISC Zero toolchain. The swap is
-  one line (`getProofBackend('risc0')`).
+- **Two proof backends.** The default demo uses `dev-ed25519` (real crypto, fast, but *trusts
+  the prover* on predicate truth). The **real zero-knowledge** backend is now implemented:
+  RISC Zero zkVM (`zkvm/`) proves the predicate set over the *private* attributes in-circuit
+  and commits only the public claim + result — see `getProofBackend('risc0')` and
+  `bun test packages/proof/test/risc0.test.ts` (runs a real receipt when the prover is built).
+  Build the prover: `cd zkvm && cargo build --release` (needs the RISC Zero toolchain via
+  `rzup`; dependency triage in [`docs/security/dependency-audit.md`](docs/security/dependency-audit.md)).
+  Still classical (next layer, in-circuit): commitment-opening, issuer-sig, and non-revocation.
 - **The vault master key is file-backed, not hardware-sealed.** The Secure Enclave / TPM /
   passkey provider is the production target (`crates/vault` fixes the trait surface); the
   secret-never-exported invariant holds regardless of where the master key lives.

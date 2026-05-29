@@ -4,10 +4,11 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 
-# std-only for now: this crate holds the predicate logic the RISC Zero *guest* will enforce
-# inside the zkVM. Wrapping it in a guest (risc0-zkvm) is the next slice and requires the
-# RISC Zero toolchain (`rzup`); see .ai/specs/02-plan.md S3.0.
+# std-only logic the RISC Zero *guest* enforces inside the zkVM (see zkvm/). serde lets the
+# host pass predicates + private attribute openings into the guest. Wrapping in the guest is
+# done in `zkvm/methods/guest`; this crate stays target-agnostic (std). See .ai/specs/02-plan.md S3.0.
 [dependencies]
+serde = { version = "1", features = ["derive"] }
 
 [lib]
 name = "zk_predicates"

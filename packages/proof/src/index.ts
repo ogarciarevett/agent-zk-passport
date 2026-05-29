@@ -1,6 +1,7 @@
 export * from './types.js';
 export { DevProofBackend, devProofBackend } from './dev-backend.js';
 export { Risc0ProofBackend, risc0ProofBackend } from './risc0-backend.js';
+export { proverStatus, resolveProverBin } from './prover-cli.js';
 
 import { devProofBackend } from './dev-backend.js';
 import { risc0ProofBackend } from './risc0-backend.js';
