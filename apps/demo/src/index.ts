@@ -19,7 +19,7 @@ import { createMerchantApp } from '@azkp/demo-merchant';
 import { Issuer, createIssuerApp } from '@azkp/issuer';
 import { RevocationChecker, TransparencyLog } from '@azkp/transparency-log';
 import { EphemeralMasterKeyProvider, SealedVault, type SecretPolicy } from '@azkp/vault';
-import { Verifier } from '@azkp/verifier';
+import { ReputationService, Verifier } from '@azkp/verifier';
 
 const PAYMENT_API_KEY = 'sk_live_PAYMENT_4f9a2b_NEVER_LEAVES_THE_BROKER';
 
@@ -146,6 +146,13 @@ async function main() {
     if (paid.result.kind === 'http_proxy') {
       ok(`merchant responded ${paid.result.status}: ${paid.result.body}`);
     }
+
+    // --- 3b. reputation: merchant attests success to a per-context pseudonym ---
+    log('6b. reputation', 'merchant attests the outcome to a pseudonym (no human revealed)');
+    const reputation = new ReputationService(log_, 'merchant.demo');
+    reputation.record(agent.agentPubkey, 'success', 3);
+    const view = reputation.view(agent.agentPubkey);
+    ok(`pseudonym ${view.pseudonym.slice(0, 12)}… → tier "${view.tier}" (score ${view.score})`);
 
     // --- 4. revocation kills future use --------------------------------------
     log('7. revoke', 'issuer revokes the credential; the agent retries');

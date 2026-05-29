@@ -9,6 +9,7 @@
  * No issuer round-trip is required.
  */
 import { type PredicateSet, describePredicate, randomHex } from '@azkp/credential';
+export * from './reputation.js';
 import { type PassportProof, type ProofBackend, getProofBackend } from '@azkp/proof';
 import type { RevocationChecker } from '@azkp/transparency-log';
 

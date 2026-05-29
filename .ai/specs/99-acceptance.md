@@ -5,7 +5,8 @@
 > Status legend: ✅ done & tested · ⚠️ done with a documented limitation · ❌ not done.
 
 **Gate evidence (2026-05-29):**
-- `bun test` → **36 passed**, 0 fail, across 7 files (incl. broker-over-UDS boundary).
+- `bun test` → **42 passed**, 0 fail (incl. broker-over-UDS boundary + reputation + Merkle).
+- `bun test --coverage` → **89% funcs / 95.8% lines** (≥ 80% threshold met).
 - `cargo test --workspace` → **9 passed** (zk-predicates 4, vault 2, verifier-core 2, prover 2), 0 fail.
 - `bun run typecheck` (`tsc --noEmit`) → **clean**.
 - `bunx biome check .` → **clean** (34 files).
@@ -39,7 +40,10 @@
   socket-boundary test (`packages/broker/test/uds.test.ts`). The in-process `bun run demo`
   keeps the broker as an object only for a single-file narrative.
 - **L2 anchoring of the revocation root** is designed, not implemented. Tracked S3.2.
-- **Reputation layer (Phase 5)** has an accumulator in `transparency-log` but no SDK surface yet.
+- ~~**Reputation layer (Phase 5)** has an accumulator but no SDK surface.~~ ✅ `ReputationService`
+  (`packages/verifier/src/reputation.ts`) records outcomes against per-context, unlinkable
+  pseudonyms and maps score → tier (flagged/new/established/trusted); wired into the demo + tested.
+  (Full cross-context unlinkability still awaits the ZK backend — see the file's note.)
 - Storage is in-memory (demo); SQLite/Drizzle is the production target.
 
 ## Verdict

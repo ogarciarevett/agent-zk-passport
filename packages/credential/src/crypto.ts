@@ -86,6 +86,20 @@ export function randomHex(byteLength = 32): string {
 }
 
 /**
+ * Derive a per-context pseudonym for an agent. Two different relying-party contexts produce
+ * unlinkable handles, so reputation accrues per context and verifiers can't correlate the same
+ * human across sites.
+ *
+ * NOTE: with the dev proof backend the agent public key is visible in the proof, so a
+ * determined pair of verifiers who share `agentPubkey` could still correlate. Full
+ * unlinkability requires the RISC Zero backend, where the agent key is never disclosed and a
+ * per-context nullifier is proven instead. The API is identical; only the backend changes.
+ */
+export function derivePseudonym(agentPubkey: string, context: string): string {
+  return sha256Hex(`pseudonym:${context}:${agentPubkey}`);
+}
+
+/**
  * Deterministic JSON serialization with recursively sorted object keys, so that two
  * structurally-equal values always hash/sign identically. Arrays keep their order.
  */
