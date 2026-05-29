@@ -23,8 +23,16 @@ issuer (HTTP)  ──mint──▶  agent ──passport proof──▶  merchan
 ```bash
 bun install
 bun run demo        # end-to-end: onboard → mint → prove → capability → gated payment → revoke
-bun test            # 33 TypeScript tests (incl. the secret-exfiltration gate)
+bun test            # 36 TypeScript tests (incl. the secret-exfiltration + socket-boundary gates)
 cargo test          # Rust core (predicate logic, vault/verifier/prover scaffolds)
+```
+
+Run the broker as its **own OS process** (the agent reaches it via `BrokerClient` over a
+Unix-domain socket — the secret-bearing vault never shares the agent's address space):
+
+```bash
+AZKP_BROKER_SOCKET=/tmp/azkp.sock AZKP_ISSUER_PUBKEY=<hex> \
+AZKP_PAYMENT_KEY=<api-key> bun run broker
 ```
 
 The demo prints each step and ends with the payment completing through the broker — while a
@@ -77,6 +85,10 @@ deliberately stubbed behind clean interfaces because their full versions are mul
 - **The vault master key is file-backed, not hardware-sealed.** The Secure Enclave / TPM /
   passkey provider is the production target (`crates/vault` fixes the trait surface); the
   secret-never-exported invariant holds regardless of where the master key lives.
+
+The broker process boundary is **implemented** (`@azkp/broker` server + `BrokerClient` over a
+Unix-domain socket, `bun run broker`); the in-process `bun run demo` uses the broker as an
+object purely for a single-file narrative.
 
 Both are tracked in [`.ai/specs/02-plan.md`](.ai/specs/02-plan.md) (S3.0, S2.0) and the
 [acceptance matrix](.ai/specs/99-acceptance.md).

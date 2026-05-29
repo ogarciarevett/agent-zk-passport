@@ -5,7 +5,7 @@
 > Status legend: ✅ done & tested · ⚠️ done with a documented limitation · ❌ not done.
 
 **Gate evidence (2026-05-29):**
-- `bun test` → **33 passed**, 0 fail, across 6 files.
+- `bun test` → **36 passed**, 0 fail, across 7 files (incl. broker-over-UDS boundary).
 - `cargo test --workspace` → **9 passed** (zk-predicates 4, vault 2, verifier-core 2, prover 2), 0 fail.
 - `bun run typecheck` (`tsc --noEmit`) → **clean**.
 - `bunx biome check .` → **clean** (34 files).
@@ -34,8 +34,10 @@
   truth; sound ZK = RISC Zero backend (toolchain + `crates/zk-predicates` guest). Tracked S3.0.
 - **Hardware sealing not yet wired.** Master key is a 0600 file; Secure Enclave/TPM/passkey is the
   target. The no-export invariant is independent of this and is tested. Tracked S2.0.
-- **Single-process demo.** Broker is a distinct object, not yet a separate process behind a Unix
-  socket. Tracked S4.0 (spec §3).
+- ~~**Single-process demo.**~~ ✅ Resolved (S4.0): broker runs as a separate process over a
+  Unix-domain socket (`@azkp/broker` server + `BrokerClient`, `bun run broker`), with a
+  socket-boundary test (`packages/broker/test/uds.test.ts`). The in-process `bun run demo`
+  keeps the broker as an object only for a single-file narrative.
 - **L2 anchoring of the revocation root** is designed, not implemented. Tracked S3.2.
 - **Reputation layer (Phase 5)** has an accumulator in `transparency-log` but no SDK surface yet.
 - Storage is in-memory (demo); SQLite/Drizzle is the production target.

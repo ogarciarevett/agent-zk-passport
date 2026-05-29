@@ -14,7 +14,8 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "test": "bun test",
-    "demo": "bun apps/demo/src/index.ts"
+    "demo": "bun apps/demo/src/index.ts",
+    "broker": "bun apps/demo/src/broker-server.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
