@@ -1,4 +1,18 @@
+<div align="center">
+
+<img src="assets/agent-zk-passport.svg" width="180" alt="agent-zk-passport: a violet passport with a mint lock seal">
+
 # agent-zk-passport
+
+**Proof-gated identity and secret operations for personal agents.**
+
+[![TypeScript](https://img.shields.io/badge/language-TypeScript-3178C6)](packages/) [![Bun](https://img.shields.io/badge/runtime-Bun-24283B)](package.json) [![Rust](https://img.shields.io/badge/core-Rust-CE7C4B)](Cargo.toml)
+
+Works with **Bun** · **RISC Zero** · **Hono**
+
+</div>
+
+---
 
 > Verifiable identity passport **+** hardware-backed secret vault for personal AI agents.
 > The passport (a zero-knowledge proof) gates capability issuance; capabilities gate every
