@@ -8,5 +8,6 @@
     "@azkp/credential": "workspace:*",
     "@azkp/proof": "workspace:*",
     "@azkp/transparency-log": "workspace:*"
-  }
+  },
+  "engines": { "node": "^24.22.1" }
 }

@@ -4,5 +4,6 @@
   "type": "module",
   "main": "src/index.ts",
   "exports": { ".": "./src/index.ts" },
-  "dependencies": { "@azkp/credential": "workspace:*" }
+  "dependencies": { "@azkp/credential": "workspace:*" },
+  "engines": { "node": "^24.22.1" }
 }
