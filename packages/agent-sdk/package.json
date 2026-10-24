@@ -7,5 +7,6 @@
   "dependencies": {
     "@azkp/credential": "workspace:*",
     "@azkp/proof": "workspace:*"
-  }
+  },
+  "engines": { "node": "^24.22.1" }
 }

@@ -10,5 +10,6 @@
     "@azkp/vault": "workspace:*",
     "@azkp/transparency-log": "workspace:*",
     "@azkp/verifier": "workspace:*"
-  }
+  },
+  "engines": { "node": "^24.22.1" }
 }

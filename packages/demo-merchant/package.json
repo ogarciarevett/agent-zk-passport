@@ -8,5 +8,6 @@
     "@azkp/credential": "workspace:*",
     "@azkp/verifier": "workspace:*",
     "hono": "^4.6.14"
-  }
+  },
+  "engines": { "node": "^24.22.1" }
 }
